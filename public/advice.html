@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>Advice Generator</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+<style>
+    body {
+        background-color: lightblue;
+    }
+    
+    #main {
+        width: 400px;
+        height: 500px;
+        margin-top: 50px;
+        margin-left: 38%;
+        border: black 5px solid;
+        border-radius: 5px;
+        text-align: center;
+        overflow: none;
+    }
+    
+    #randomFact,#searchFact {
+        display: none;
+        padding: 0px 20px 0px 20px;
+    }
+    
+    .absolute {
+        position: absolute;
+    }
+    
+    input {
+        width:250px;
+    }
+</style>
+
+</head>
+<body>
+    <div id='main'>
+        <h2 id='mainTitle'>Advice Generator</h2>
+        <br>
+        <br>
+        <br>
+        <div style='height: 50px'>
+            <p id='randomFact'></p>   
+        </div>
+        <br>
+        <button onclick='getRandomFact()'>Get Random Advice</button>
+        <hr>
+        <h4 id='mainTitle'>Search for Advice</h4>
+        <br>
+        <input id='search' placeholder='Enter a single word and hit enter.'/>
+        <br>
+        <br>
+        <div style='height: 50px'>
+            <p id='searchFact'></p>   
+        </div>
+    </div>
+</body>
+<script>    
+    $(document).ready(function() {
+        $('#search').on("keypress", function(event) {
+            if(event.which === 13) {
+                searchForFact($('#search').val());
+            }
+        })
+        
+        getRandomFact();
+    })
+    
+    function getRandomFact() {
+         $('#randomFact').fadeOut('slow', () => {
+            $.getJSON('getAdvice?type=random', function(data,err) {
+                var json = JSON.parse(data);
+                $('#randomFact').text(json['slip']['advice']).fadeIn('slow');
+            })
+         })
+    }
+    
+    function searchForFact(criteria) {
+         $('#searchFact').fadeOut('slow', () => {
+            $.getJSON('getAdvice?type=search&advice=' + criteria, function(data,err) {
+                var json = JSON.parse(data);
+                
+                if(data.hasOwnProperty('message')) {
+                    $('#searchFact').text("No advice found.").fadeIn('slow');
+                } else {
+                    var html = "";
+                    for(var i = 0; i < parseInt(json['total_results']); i++) {
+                        html += json['slips'][i]['advice'] + "<br>"
+                    }
+                    $('#searchFact').html(html).fadeIn('slow');
+                }
+            })
+         })
+    }
+</script>
+</html>
